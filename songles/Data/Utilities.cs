@@ -1,4 +1,5 @@
 ﻿using CsvHelper;
+using songles.Data.Models;
 using System.Globalization;
 
 namespace songles.Data
@@ -13,12 +14,13 @@ namespace songles.Data
                 var records = csv.GetRecords<CsvSong>();
                 foreach (var record in records)
                 {
-                    var songToAdd = new Song {
-                            TrackName = record.TrackName,
-                            Artist = record.Artist,
-                            Album = record.Album,
-                            Genre = record.Genre,
-                            Time = record.Time
+                    var songToAdd = new Song
+                    {
+                        TrackName = record.TrackName,
+                        Artist = record.Artist,
+                        Album = record.Album,
+                        Genre = record.Genre,
+                        Time = record.Time
                     };
                     await db.Songs.AddAsync(songToAdd);
                 }
@@ -27,12 +29,5 @@ namespace songles.Data
         }
     }
 
-    sealed class CsvSong
-    {
-        public string? TrackName { get; set; }
-        public string? Artist { get; set; }
-        public string? Album { get; set; }
-        public string? Genre { get; set; }
-        public TimeOnly? Time { get; set; }
-    }
+    
 }

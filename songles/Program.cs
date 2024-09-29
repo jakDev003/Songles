@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using songles.Controller;
 using songles.Data;
 
 await using var db = new Model();
@@ -15,14 +15,5 @@ else
     Console.WriteLine("Database already exists.");
 }
 
-Console.WriteLine("Querying for songs");
-
-var songs = from song in db.Songs
-            where song.Artist == "Bad"
-            && song.TrackName == "Shirts"
-            select song;
-
-foreach (var song in songs)
-{
-    Console.WriteLine($"Song: {song.TrackName} by {song.Artist}");
-}
+var dj = new DiskJockey(db);
+dj.Play();

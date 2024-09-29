@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using songles.Data.Models;
 
 namespace songles.Data
 {
@@ -19,13 +20,5 @@ namespace songles.Data
 
     }
 
-    public class Song
-    {
-        public int Id { get; set; }
-        public string? TrackName { get; set; }
-        public string? Artist { get; set; }
-        public string? Album { get; set; }
-        public string? Genre { get; set; }
-        public TimeOnly? Time { get; set; }
-    }
+    
 }
