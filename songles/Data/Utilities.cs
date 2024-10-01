@@ -6,6 +6,15 @@ namespace songles.Data
 {
     internal static class Utilities
     {
+        const char _block = '■';
+        const string _back = "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b";
+
+        /// <summary>
+        /// Intialized the database with the data from the csv file
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="pathToFile"></param>
+        /// <returns></returns>
         public static async Task InitializeDatabase(Model db, string pathToFile)
         {
             using (var reader = new StreamReader(pathToFile))
@@ -26,6 +35,52 @@ namespace songles.Data
                 }
                 await db.SaveChangesAsync();
             }
+        }
+
+        /// <summary>
+        /// Returns a string of progress bars based on the current and total values
+        /// </summary>
+        /// <param name="total"></param>
+        /// <param name="elapsedTime"></param>
+        /// <param name="totalTime"></param>
+        /// <param name="current"></param>
+
+        /// <returns></returns>
+        public static void SetProgressBar(int percent, TimeSpan elapsedTime, TimeOnly totalTime, bool update = false)
+        {
+            if (update)
+                Console.Write(_back);
+            Console.Write("[");
+            var p = (int)((percent / 10f) + .5f);
+            for (var i = 0; i < 10; ++i)
+            {
+                if (i >= p)
+                    Console.Write(' ');
+                else
+                    Console.Write(_block);
+            }
+            Console.Write("] {0,3:##0}% ", percent);
+            Console.Write($"({TimeSpanToString(elapsedTime)}/{TimeOnlyToString(totalTime)})");
+        }
+
+        /// <summary>
+        /// TimeOnly to string
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        private static string TimeOnlyToString(TimeOnly time)
+        {
+            return $"{time.Hour}:{time.Minute}:{time.Second}";
+        }
+
+        /// <summary>
+        /// TimeSpan to string
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        private static string TimeSpanToString(TimeSpan time)
+        {
+            return $"{time.Hours}:{time.Minutes}:{time.Seconds}";
         }
     }
 

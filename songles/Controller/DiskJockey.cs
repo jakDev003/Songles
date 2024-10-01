@@ -1,24 +1,39 @@
-﻿using songles.Data;
+﻿using CsvHelper.Expressions;
+using songles.Data;
+using songles.Data.Models;
+using System.Diagnostics;
 
 namespace songles.Controller
 {
     internal class DiskJockey
     {
         private readonly Model context;
+        private Song? currentSong;
 
+        /// <summary>
+        /// Plays songs from the database according to the user's preferences
+        /// </summary>
+        /// <param name="db"></param>
         public DiskJockey(Model db)
         {
             context = db;
+            currentSong = null;
         }
 
+        /// <summary>
+        /// Plays the next song in the database
+        /// </summary>
         public void Play()
         {
-            Random rand = new Random();
-            int toSkip = rand.Next(0, context.Songs.Count());
-
-            var song = context.Songs.Skip(toSkip).Take(1).First();
-
-            Console.WriteLine($"Now playing: {song.TrackName} by {song.Artist}");
+            if (currentSong == null)
+            { 
+                PickNextRandomSong();
+            }
+            else
+            {
+                PickNextSong();
+            }
+            DisplaySong();
         }
 
         public void Pause()
@@ -44,6 +59,48 @@ namespace songles.Controller
         public void ThumbDown()
         {
             throw new System.NotImplementedException();
+        }
+
+        /// <summary>
+        /// Displays the current song and waits for it to finish
+        /// </summary>
+        private void DisplaySong()
+        {
+            Console.WriteLine($"Now playing: {currentSong?.TrackName} by {currentSong?.Artist}");
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
+            var time = currentSong?.Time ?? new TimeOnly();
+            bool update = false;
+            for (int second = 0; second < time.Second; second++)
+            {
+                TimeSpan ts = stopWatch.Elapsed;
+                var percent = (int)((second / (float)time.Second) * 100);
+                Thread.Sleep(1000);
+                Utilities.SetProgressBar(percent, ts, time, update);
+                update = true;
+            }
+            stopWatch.Stop();
+        }
+
+        /// <summary>
+        /// Picks a random song from the database
+        /// </summary>
+        private void PickNextRandomSong()
+        {
+            Random rand = new Random();
+            int toSkip = rand.Next(0, context.Songs.Count());
+
+            currentSong = context.Songs.Skip(toSkip).Take(1).First();
+        }
+
+        /// <summary>
+        /// Picks the next song in the database
+        /// </summary>
+        private void PickNextSong()
+        {
+            int toSkip = (currentSong?.Id ?? 0) + 1;
+            currentSong = context.Songs.Skip(toSkip).Take(1).FirstOrDefault();
         }
     }
 }
