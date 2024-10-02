@@ -7,7 +7,6 @@ namespace songles.Data
     internal static class Utilities
     {
         const char _block = '■';
-        const string _back = "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b";
 
         /// <summary>
         /// Intialized the database with the data from the csv file
@@ -49,10 +48,10 @@ namespace songles.Data
         public static void SetProgressBar(int percent, TimeSpan elapsedTime, TimeOnly totalTime, bool update = false)
         {
             if (update)
-                Console.Write(_back);
+                Console.Write("\r");
             Console.Write("[");
-            var p = (int)((percent / 10f) + .5f);
-            for (var i = 0; i < 10; ++i)
+            var p = (int)((percent / 20f) + .5f);
+            for (var i = 0; i < 20; ++i)
             {
                 if (i >= p)
                     Console.Write(' ');

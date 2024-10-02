@@ -70,14 +70,15 @@ namespace songles.Controller
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            var time = currentSong?.Time ?? new TimeOnly();
+            var timeActual = currentSong?.Time ?? new TimeOnly();
+            var time = timeActual.ToTimeSpan().TotalSeconds;
             bool update = false;
-            for (int second = 0; second < time.Second; second++)
+            for (int second = 0; second < time; second++)
             {
                 TimeSpan ts = stopWatch.Elapsed;
-                var percent = (int)((second / (float)time.Second) * 100);
+                var percent = (int)((second / (float)time) * 100);
                 Thread.Sleep(1000);
-                Utilities.SetProgressBar(percent, ts, time, update);
+                Utilities.SetProgressBar(percent, ts, timeActual, update);
                 update = true;
             }
             stopWatch.Stop();
