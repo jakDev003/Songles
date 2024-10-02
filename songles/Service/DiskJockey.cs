@@ -1,9 +1,8 @@
-﻿using CsvHelper.Expressions;
-using songles.Data;
+﻿using songles.Data;
 using songles.Data.Models;
 using System.Diagnostics;
 
-namespace songles.Controller
+namespace songles.Service
 {
     internal class DiskJockey
     {
@@ -76,9 +75,9 @@ namespace songles.Controller
             for (int second = 0; second < time; second++)
             {
                 TimeSpan ts = stopWatch.Elapsed;
-                var percent = (int)((second / (float)time) * 100);
+                var percent = (int)((second / time) * 100);
                 Thread.Sleep(1000);
-                Utilities.SetProgressBar(percent, ts, timeActual, update);
+                ConsoleUtilities.SetProgressBar(percent, ts, timeActual, update);
                 update = true;
             }
             stopWatch.Stop();
