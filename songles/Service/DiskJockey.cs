@@ -1,4 +1,6 @@
 ﻿using songles.Data;
+using songles.Data.DTO;
+using songles.Data.Enums;
 using songles.Data.Models;
 using System.Diagnostics;
 
@@ -6,8 +8,8 @@ namespace songles.Service
 {
     internal class DiskJockey
     {
-        private readonly Model context;
         private Song? currentSong;
+        private readonly SongDTO songDTO;
 
         /// <summary>
         /// Plays songs from the database according to the user's preferences
@@ -15,7 +17,7 @@ namespace songles.Service
         /// <param name="db"></param>
         public DiskJockey(Model db)
         {
-            context = db;
+            songDTO = new SongDTO(db);
             currentSong = null;
         }
 
@@ -35,29 +37,48 @@ namespace songles.Service
             DisplaySong();
         }
 
+        /// <summary>
+        /// Temporarily pauses the current song
+        /// </summary>
         public void Pause()
         {
-            throw new System.NotImplementedException();
+            if (currentSong == null) {
+                return;
+            }
+            currentSong = songDTO.PauseSong(currentSong).Result;
         }
 
+        /// <summary>
+        /// Stops the current song
+        /// </summary>
         public void Stop()
         {
-            throw new System.NotImplementedException();
+            currentSong = null;
+            Console.Clear();
         }
 
-        public void Skip()
-        {
-            throw new System.NotImplementedException();
-        }
-
+        /// <summary>
+        /// Marks the song as something the user likes
+        /// </summary>
         public void ThumbUp()
         {
-            throw new System.NotImplementedException();
+            if (currentSong == null)
+            {
+                return;
+            }
+            currentSong = songDTO.ChangeSongPreference(currentSong, UserSongPreference.ThumbUp).Result;
         }
 
+        /// <summary>
+        /// Marks the song as something the user dislikes
+        /// </summary>
         public void ThumbDown()
         {
-            throw new System.NotImplementedException();
+            if (currentSong == null)
+            {
+                return;
+            }
+            currentSong = songDTO.ChangeSongPreference(currentSong, UserSongPreference.ThumbDown).Result;
         }
 
         /// <summary>
@@ -65,20 +86,43 @@ namespace songles.Service
         /// </summary>
         private void DisplaySong()
         {
-            Console.WriteLine($"Now playing: {currentSong?.TrackName} by {currentSong?.Artist}");
+            var nowPlaying = string.Empty;
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
 
             var timeActual = currentSong?.Time ?? new TimeOnly();
             var time = timeActual.ToTimeSpan().TotalSeconds;
             bool update = false;
+            var previousSong = currentSong;
             for (int second = 0; second < time; second++)
             {
+                // User must have stopped the song
+                if (currentSong == null)
+                {
+                    break;
+                }
+                // User must have changed the song
+                else if (currentSong != previousSong)
+                {
+                    DisplaySong();
+                }
+
+                // Show progress bar and song information
                 TimeSpan ts = stopWatch.Elapsed;
                 var percent = (int)((second / time) * 100);
                 Thread.Sleep(1000);
+                Console.Clear();
+                nowPlaying = $"Now playing: {currentSong?.TrackName} by {currentSong?.Artist} [ {currentSong?.UserPreference} ]";
+                Console.WriteLine(nowPlaying);
                 ConsoleUtilities.SetProgressBar(percent, ts, timeActual, update);
                 update = true;
+
+                // Song is finished so pick the next song
+                if (percent == 100)
+                {
+                    PickNextSong();
+                    DisplaySong();
+                }
             }
             stopWatch.Stop();
         }
@@ -88,19 +132,20 @@ namespace songles.Service
         /// </summary>
         private void PickNextRandomSong()
         {
-            Random rand = new Random();
-            int toSkip = rand.Next(0, context.Songs.Count());
-
-            currentSong = context.Songs.Skip(toSkip).Take(1).First();
+            currentSong = songDTO.GetRandomSong().Result;
         }
 
         /// <summary>
         /// Picks the next song in the database
         /// </summary>
-        private void PickNextSong()
+        public void PickNextSong()
         {
-            int toSkip = (currentSong?.Id ?? 0) + 1;
-            currentSong = context.Songs.Skip(toSkip).Take(1).FirstOrDefault();
+            if (currentSong == null)
+            {
+                PickNextRandomSong();
+                return;
+            }
+            currentSong = songDTO.GetNextSong(currentSong).Result;
         }
     }
 }

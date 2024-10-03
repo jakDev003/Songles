@@ -18,10 +18,9 @@
             if (update)
                 Console.Write("\r");
             Console.Write("[");
-            var p = (int)((percent / 20f) + .5f);
-            for (var i = 0; i < 10; ++i)
+            for (var i = 0; i < 100; ++i)
             {
-                if (i >= p)
+                if (i >= percent)
                     Console.Write(' ');
                 else
                     Console.Write(_block);
