@@ -1,8 +1,8 @@
-﻿using songles.Data;
-using songles.Data.DTO;
+﻿using songles.Data.DTO;
 using songles.Data.Enums;
 using songles.Data.Models;
 using System.Diagnostics;
+using Model = songles.Data.Model;
 
 namespace songles.Service
 {
@@ -10,6 +10,7 @@ namespace songles.Service
     {
         private Song? currentSong;
         private readonly SongDTO songDTO;
+        const string instructions = "P[a]use, [S]top, [L]ike, [D]islike, [P]lay, [N]ext song, [R]andom song";
 
         /// <summary>
         /// Plays songs from the database according to the user's preferences
@@ -86,7 +87,6 @@ namespace songles.Service
         /// </summary>
         private void DisplaySong()
         {
-            var nowPlaying = string.Empty;
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
 
@@ -106,31 +106,48 @@ namespace songles.Service
                 {
                     DisplaySong();
                 }
-
-                // Show progress bar and song information
-                TimeSpan ts = stopWatch.Elapsed;
-                var percent = (int)((second / time) * 100);
-                Thread.Sleep(1000);
-                Console.Clear();
-                nowPlaying = $"Now playing: {currentSong?.TrackName} by {currentSong?.Artist} [ {currentSong?.UserPreference} ]";
-                Console.WriteLine(nowPlaying);
-                ConsoleUtilities.SetProgressBar(percent, ts, timeActual, update);
-                update = true;
-
-                // Song is finished so pick the next song
-                if (percent == 100)
-                {
-                    PickNextSong();
-                    DisplaySong();
-                }
+                update = ShowSong(stopWatch, second, time, timeActual, update);
             }
             stopWatch.Stop();
         }
 
         /// <summary>
+        /// Shows the current song and its progress
+        /// </summary>
+        /// <param name="stopWatch"></param>
+        /// <param name="second"></param>
+        /// <param name="time"></param>
+        /// <param name="timeActual"></param>
+        /// <param name="update"></param>
+        /// <returns></returns>
+        private bool ShowSong(Stopwatch stopWatch, int second, double time, TimeOnly timeActual, bool update)
+        {
+            var nowPlaying = string.Empty;
+            
+
+            // Show progress bar and song information
+            TimeSpan ts = stopWatch.Elapsed;
+            var percent = (int)((second / time) * 100);
+            Thread.Sleep(1000);
+            Console.Clear();
+            nowPlaying = $"Now playing: {currentSong?.TrackName} by {currentSong?.Artist} [ {currentSong?.UserPreference} ]";
+            Console.WriteLine(nowPlaying);
+            Console.WriteLine(instructions);
+            ConsoleUtilities.SetProgressBar(percent, ts, timeActual, update);
+     
+            // Song is finished so pick the next song
+            if (percent == 100)
+            {
+                PickNextSong();
+                DisplaySong();
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Picks a random song from the database
         /// </summary>
-        private void PickNextRandomSong()
+        public void PickNextRandomSong()
         {
             currentSong = songDTO.GetRandomSong().Result;
         }

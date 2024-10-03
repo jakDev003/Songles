@@ -52,23 +52,26 @@
                 var key = Console.ReadKey(true).Key;
                 switch (key)
                 {
-                    case ConsoleKey.P:
+                    case ConsoleKey.A:
                         _diskJockey.Pause();
                         break;
                     case ConsoleKey.S:
                         _diskJockey.Stop();
                         break;
-                    case ConsoleKey.UpArrow:
+                    case ConsoleKey.L:
                         _diskJockey.ThumbUp();
                         break;
-                    case ConsoleKey.DownArrow:
+                    case ConsoleKey.D:
                         _diskJockey.ThumbDown();
                         break;
-                    case ConsoleKey.R:
+                    case ConsoleKey.P:
                         _diskJockey.Play();
                         break;
                     case ConsoleKey.N:
                         _diskJockey.PickNextSong();
+                        break;
+                    case ConsoleKey.R:
+                        _diskJockey.PickNextRandomSong();
                         break;
                     default:
                         _diskJockey.Stop();
