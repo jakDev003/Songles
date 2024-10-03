@@ -26,7 +26,7 @@ if (await db.Database.EnsureCreatedAsync())
     }
 }
 
-var dj = new DiskJockey(db);
+var dj = new DiskJockey(db, debug);
 var userInput = new UserInput(TimeSpan.FromSeconds(1), dj);
 userInput.Start();
 dj.Play();

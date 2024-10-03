@@ -22,6 +22,22 @@ namespace songles.Data.DTO
             var random = new Random();
             var songs = await context.Songs.ToListAsync();
             var newSong = songs[random.Next(0, songs.Count)];
+
+            // 1 in 3 chance of skipping a song the user dislikes
+            var chance = random.Next(0, 3);
+            if (chance == 0 && newSong.UserPreference == UserSongPreference.ThumbDown)
+            {
+                newSong = songs[random.Next(0, songs.Count)];
+            }
+
+            // 1 in 5 chance of skipping a song the user likes
+            chance = random.Next(0, 5);
+            if (chance == 0 && newSong.UserPreference == UserSongPreference.ThumbUp)
+            {
+                newSong = songs[random.Next(0, songs.Count)];
+            }
+
+
             return await ChangeSongState(newSong, SongState.Playing);
         }
 
