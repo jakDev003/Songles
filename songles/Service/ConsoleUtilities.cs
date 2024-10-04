@@ -2,7 +2,7 @@
 {
     internal static class ConsoleUtilities
     {
-        const char _block = '■';
+        const string _block = "c";
 
         /// <summary>
         /// Returns a string of progress bars based on the current and total values
@@ -20,10 +20,22 @@
             Console.Write("[");
             for (var i = 0; i < 100; ++i)
             {
-                if (i >= percent)
-                    Console.Write(' ');
-                else
+                if (i >= percent + 1)
+                {
+                    Console.Write('-');
+                }
+                else if (i == percent && IsEven(percent))
+                {
+                    Console.Write(_block.ToUpper());
+                }
+                else if (i == percent && !IsEven(percent))
+                {
                     Console.Write(_block);
+                }
+                else
+                {
+                    Console.Write(' ');
+                }
             }
             Console.Write($"] ({TimeSpanToString(elapsedTime)}/{TimeOnlyToString(totalTime)})");
         }
@@ -46,6 +58,16 @@
         private static string TimeSpanToString(TimeSpan time)
         {
             return $"{time.Hours}:{time.Minutes}:{time.Seconds}";
+        }
+
+        /// <summary>
+        /// Determines if a number is even
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private static bool IsEven(int value)
+        {
+            return value % 2 == 0;
         }
     }
 }

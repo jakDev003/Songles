@@ -157,7 +157,7 @@ namespace songles.Service
         {
             var nowPlaying = string.Empty;
             TimeSpan ts = stopWatch.Elapsed;
-            Console.Clear();
+            Console.SetCursorPosition(0, 0);
             nowPlaying = $"Now playing: {currentSong?.TrackName} by {currentSong?.Artist} [ {currentSong?.UserPreference} ]";
             const int pad = 15;
             Console.WriteLine(title.PadLeft(70 + pad));
