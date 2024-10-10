@@ -33,15 +33,23 @@ namespace songles.Service
         /// </summary>
         public void Play()
         {
+            // If there is no current song, pick a random song
             if (currentSong == null)
             {
                 PickNextRandomSong();
+                DisplaySong();
             }
+            // Resume the current song
+            else if (currentSong.State == SongState.Paused)
+            {
+                currentSong = songDTO.ChangeSongState(currentSong, SongState.Playing).Result;
+            }
+            // Play the next song
             else
             {
                 PickNextSong();
-            }
-            DisplaySong();
+                DisplaySong();
+            }   
         }
 
         /// <summary>
@@ -108,12 +116,32 @@ namespace songles.Service
                 {
                     break;
                 }
+                // User must have resumed the song
+                else if (!stopWatch.IsRunning && currentSong.State == SongState.Playing)
+                {
+                    stopWatch.Start();
+                }
+                // User must have paused the song
+                else if (stopWatch.IsRunning && currentSong.State == SongState.Paused)
+                {
+                    stopWatch.Stop();
+                }
                 // User must have changed the song
                 else if (currentSong != previousSong)
                 {
                     DisplaySong();
                 }
-                update = ShowSong(stopWatch, second, time, timeActual, update);
+
+                // Only update the screen if the song is playing
+                if (stopWatch.IsRunning)
+                {
+                    update = ShowSong(stopWatch, second, time, timeActual, update);
+                }
+                // Song is paused so decrement the second
+                else
+                {
+                    second--;
+                }
             }
             stopWatch.Stop();
         }
@@ -155,16 +183,17 @@ namespace songles.Service
         /// <param name="update"></param>
         private void ShowInformation(string title, string instructions, Stopwatch stopWatch, TimeOnly timeActual, int percent, bool update)
         {
-            var nowPlaying = string.Empty;
             TimeSpan ts = stopWatch.Elapsed;
             Console.SetCursorPosition(0, 0);
-            nowPlaying = $"Now playing: {currentSong?.TrackName} by {currentSong?.Artist} [ {currentSong?.UserPreference} ]";
+            var nowPlaying = $"Now playing: {currentSong?.TrackName} by {currentSong?.Artist} [ {currentSong?.UserPreference} ]";
+            var status = $"Status: {currentSong?.State.ToString().PadRight(10)}";
             const int pad = 15;
             Console.WriteLine(title.PadLeft(70 + pad));
             Console.WriteLine(instructions.PadLeft(80 + pad));
             Console.WriteLine(divider);
             Console.WriteLine();
             Console.WriteLine(nowPlaying);
+            Console.WriteLine(status);
             Console.WriteLine();
             Console.WriteLine(divider);
             Console.WriteLine();
@@ -184,18 +213,18 @@ namespace songles.Service
         /// <param name="percent"></param>
         private void ShowDebugInformation(int percent)
         {
-                Console.WriteLine();
-                Console.WriteLine(divider);
-                Console.WriteLine("Debug Information:");
-                Console.WriteLine();
-                Console.WriteLine($"ID: {currentSong?.Id}");
-                Console.WriteLine($"Trackname: {currentSong?.TrackName}");
-                Console.WriteLine($"Time: {currentSong?.Time}");
-                Console.WriteLine($"UserPreference: {currentSong?.UserPreference}");
-                Console.WriteLine($"Album: {currentSong?.Album}");
-                Console.WriteLine($"State: {currentSong?.State}");
-                Console.WriteLine($"Percent: {percent}");
-   
+            Console.WriteLine();
+            Console.WriteLine(divider);
+            Console.WriteLine("Debug Information:");
+            Console.WriteLine();
+            Console.WriteLine($"ID: {currentSong?.Id}");
+            Console.WriteLine($"Trackname: {currentSong?.TrackName}");
+            Console.WriteLine($"Time: {currentSong?.Time}");
+            Console.WriteLine($"UserPreference: {currentSong?.UserPreference}");
+            Console.WriteLine($"Album: {currentSong?.Album}");
+            Console.WriteLine($"State: {currentSong?.State}");
+            Console.WriteLine($"Percent: {percent}");
+
         }
 
         /// <summary>
